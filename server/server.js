@@ -14,7 +14,7 @@ const adminRoute = require('./routes/admin-router');
 const documentRoute = require('./routes/document-router');
 
 const clorsOption = {
-    origin: ["http://localhost:5173", "https://tumor.vercel.app", "https://tumor.vercel.app"],
+    origin: ["http://localhost:5173", "https://tumorr.vercel.app"],
     methods: "GET, POST, PUT, DELETE, PATCH, HEAD",
     credentials: true,
 };
