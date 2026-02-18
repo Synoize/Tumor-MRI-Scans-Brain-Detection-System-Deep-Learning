@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?
+    family=Outfit:wght@100;200;300;400;500;600;700;800;900&
+    family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&
+    family=Roboto:wght@100;300;400;500;700;900&
+    family=Source+Sans+3:wght@200;300;400;500;600;700;800;900&
+    display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-special-blue: #0CA0E4;
+            --color-special-green: #DCF9E3;
+            --color-special-red: #C23700;
+        }
+        
+        ::selection {
+            background-color: var(--color-special-red);
+            color: #ffffff;
+        }
+
+        * {
+            scroll-behavior: smooth;
+        }
+    </style>
+    <title>Tumor - The Detection System</title>
+</head>
+<style>
+    @keyframes slideInLeft {
+        from {
+            transform: translateX(-100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    .animate-slide-in-left {
+        animation: slideInLeft 0.3s ease-out forwards;
+    }
+
+
+    .slider-image {
+        position: absolute;
+        border-radius: 0.5rem;
+        object-fit: cover;
+        transition:
+            transform 0.6s ease,
+            left 0.6s ease,
+            right 0.6s ease,
+            opacity 0.6s ease,
+            width 0.6s ease;
+    }
+
+    @keyframes fade-in-down {
+        0% {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slide-in-left {
+        0% {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        100% {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    .animate-fade-in-down {
+        animation: fade-in-down 0.2s ease-out;
+    }
+
+
+    .faq-item {
+        text-align: start;
+        color: #000000;
+        background-color: #fafafa;
+        padding: 25px 30px;
+        border-radius: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .faq-item:hover {
+        padding: 20px;
+    }
+
+    .faq-answer {
+        text-align: start;
+        display: none;
+        flex-wrap: wrap;
+        padding-top: 10px;
+        font-size: 14px;
+    }
+
+    .faq-item.active .faq-answer {
+        display: block;
+    }
+
+    .toggle {
+        color: #000;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 1rem;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .hover-scale:hover {
+        scale: calc(0.98);
+        transition: transform 0.3s ease-in-out;
+    }
+</style>
+
+<body class="bg-white">
+    <!-- Header -->
+    <header
+        class="container mx-auto px-6 sm:px-12 py-4 flex items-center justify-between border-b border-gray-200 relative">
+
+        <!-- Logo -->
+        <a href="/" class="flex items-center space-x-2">
+            <img src="/assets/logo.png" alt="YYOG" class="h-12 w-auto" />
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden sm:flex items-center space-x-8 text-black">
+            <a href="/" class="text-special-red font-medium">Home</a>
+            <a href="./pages/about" class="hover:text-special-red ">About</a>
+            <a href="./pages/tools" class="hover:text-special-red">Tools</a>
+            <a href="./pages/case-studies" class="hover:text-special-red">Case Studies</a>
+            <a href="./pages/resources" class="hover:text-special-red">Resources</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+
+            <!-- Auth Section -->
+            <div class="flex items-center space-x-3">
+                {% if current_user.is_authenticated %}
+                <span class="flex items-center gap-3">
+                    <span class="first-letter:uppercase">
+                        {{ current_user.username }}
+                    </span>
+                    <a href="{{ url_for('profile') }}" class="w-10 h-10 flex items-center justify-center 
+                          rounded-full bg-gray-100 text-red-600 hover:bg-gray-200">
+                        <i class="fas fa-user text-sm"></i>
+                    </a>
+                </span>
+                {% else %}
+                <a href="{{ url_for('login') }}"
+                    class="text-white bg-special-red hover:bg-special-red/90 px-4 py-2 rounded-full  text-sm">
+                    Login/Register
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Toggle Button -->
+            <button id="menu-toggle"
+                class="sm:hidden flex items-center justify-center w-10 h-10 focus:outline-none z-50 cursor-pointer text-gray-800 hover:text-red-600 transition-colors">
+                <i id="menu-icon" class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile -->
+    <div id="mobile-menu"
+        class="sm:hidden hidden fixed h-[100vh] top-0 left-0 w-4/5 z-40 bg-white px-6 py-4 border-r border-gray-200 text-lg flex flex-col gap-2 animate-slide-in-left shadow-2xl">
+
+        <a href="/">
+            <img src="/assets/logo.png" alt="YYOG" class="h-12 w-auto mb-4" />
+        </a>
+
+        <a href="/" class="py-3 text-special-red font-medium flex items-center">
+            <i class="fas fa-home mr-3"></i>Home
+        </a>
+
+        <a href="./pages/about" class="py-3 flex items-center">
+            <i class="fas fa-info-circle mr-3"></i>About
+        </a>
+
+        <a href="./pages/tools" class="py-3 flex items-center">
+            <i class="fas fa-tools mr-3"></i>Tools
+        </a>
+
+        <a href="./pages/case-studies" class="py-3 flex items-center">
+            <i class="fas fa-book-open mr-3"></i>Case Studies
+        </a>
+
+        <a href="./pages/resources" class="py-3 flex items-center">
+            <i class="fas fa-file-alt mr-3"></i>Resources
+        </a>
+
+        <hr class="my-4">
+
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('profile') }}" class="py-3 flex items-center">
+            <i class="fas fa-user mr-3"></i>Profile
+        </a>
+
+        <a href="{{ url_for('logout') }}" class="py-3 text-red-600 flex items-center">
+            <i class="fas fa-sign-out-alt mr-3"></i>Logout
+        </a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="py-3 flex items-center">
+            <i class="fas fa-sign-in-alt mr-3"></i>Login
+        </a>
+
+        <a href="{{ url_for('register') }}" class="py-3 bg-special-red text-white rounded-lg text-center">
+            Register
+        </a>
+        {% endif %}
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+        const menuIcon = document.getElementById("menu-icon");
+
+        menuToggle.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+
+            if (mobileMenu.classList.contains("hidden")) {
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            } else {
+                menuIcon.classList.remove("fa-bars");
+                menuIcon.classList.add("fa-times");
+            }
+        });
+
+        // Close when clicking links
+        document.querySelectorAll("#mobile-menu a").forEach(link => {
+            link.addEventListener("click", () => {
+                mobileMenu.classList.add("hidden");
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            });
+        });
+
+        // Close when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!mobileMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+                mobileMenu.classList.add("hidden");
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            }
+        });
+    </script>
+
+    <!-- Floating Share Button Group -->
+    <div class="fixed bottom-8 right-8 z-30" id="share-container">
+        <div class="flex flex-col items-center space-y-3 relative">
+
+            <!-- Share Icons -->
+            <div id="share-icons"
+                class="flex flex-col items-center space-y-3 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none">
+
+                <!-- Twitter -->
+                <a href="https://x.com/synoize" target="_blank">
+                    <div
+                        class="bg-black text-white w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fab fa-x-twitter"></i>
+                    </div>
+                </a>
+
+                <!-- WhatsApp -->
+                <a href="https://wa.me/916205163577" target="_blank">
+                    <div
+                        class="bg-black w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fab fa-whatsapp text-green-400 text-xl"></i>
+                    </div>
+                </a>
+
+                <!-- LinkedIn -->
+                <a href="https://www.linkedin.com/in/synoize" target="_blank">
+                    <div
+                        class="bg-black w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fab fa-linkedin-in text-special-blue text-xl"></i>
+                    </div>
+                </a>
+
+                <!-- Email -->
+                <a href="mailto:shivamsingh.dev0@gmail.com">
+                    <div
+                        class="bg-black w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fas fa-envelope text-red-500 text-lg"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Main Share Button -->
+            <div id="share-button"
+                class="bg-special-red w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition cursor-pointer">
+                <i class="fas fa-share-alt text-xl"></i>
+            </div>
+        </div>
+    </div>
+    <script>
+        const shareButton = document.getElementById("share-button");
+        const shareIcons = document.getElementById("share-icons");
+        const shareContainer = document.getElementById("share-container");
+
+        let isOpen = false;
+
+        // Show on mouse enter
+        shareContainer.addEventListener("mouseenter", () => {
+            shareIcons.classList.remove("opacity-0", "translate-y-4", "pointer-events-none");
+            shareIcons.classList.add("opacity-100", "translate-y-0", "pointer-events-auto");
+            isOpen = true;
+        });
+
+        // Hide on mouse leave
+        shareContainer.addEventListener("mouseleave", () => {
+            shareIcons.classList.remove("opacity-100", "translate-y-0", "pointer-events-auto");
+            shareIcons.classList.add("opacity-0", "translate-y-4", "pointer-events-none");
+            isOpen = false;
+        });
+    </script>
+
+    <!-- main -->
+    <main>
+        <!-- Top Section -->
+        <section class="container mx-auto mb-20 text-center text-black">
+            <h2 class="text-sm uppercase tracking-wide mb-4 mt-12 font-bold">MRI Tumor Detection System</h2>
+            <h1 class="text-2xl md:text-5xl max-w-4xl mx-auto font-light mb-18 px-4 leading-snug">
+                Your trusted deep learning brain tumor detection model, scan your report
+            </h1>
+
+            <div class="relative w-full h-72 flex items-center justify-center overflow-hidden">
+                <div id="slider" class="relative w-full h-full flex items-center justify-center">
+                </div>
+            </div>
+            <script>
+                const images = [
+                    "/assets/top_banner_1.png",
+                    "/assets/top_banner_2.png",
+                    "/assets/top_banner_3.png",
+                ];
+
+                const slider = document.getElementById("slider");
+                let current = 0;
+
+                function createImage(src, position) {
+                    const img = document.createElement("img");
+                    img.src = src;
+                    img.className =
+                        "slider-image absolute rounded-lg object-cover shadow-lg";
+
+                    if (position === "center") {
+                        img.className += "w-96 z-10";
+                        img.style.left = "50%";
+                        img.style.transform = "translateX(-50%) scale(1.1)";
+                    } else if (position === "left") {
+                        img.className += " w-64 opacity-70";
+                        img.style.left = "10%";
+                    } else if (position === "right") {
+                        img.className += " w-64 opacity-70";
+                        img.style.right = "10%";
+                    }
+
+                    return img;
+                }
+
+                function renderSlider() {
+                    slider.innerHTML = "";
+
+                    const prevIndex = (current - 1 + images.length) % images.length;
+                    const nextIndex = (current + 1) % images.length;
+
+                    slider.appendChild(createImage(images[prevIndex], "left"));
+                    slider.appendChild(createImage(images[current], "center"));
+                    slider.appendChild(createImage(images[nextIndex], "right"));
+                }
+
+                setInterval(() => {
+                    current = (current + 1) % images.length;
+                    renderSlider();
+                }, 2500);
+
+                window.addEventListener("load", renderSlider);
+            </script>
+
+            <a href="./pages/tools"
+                class="inline-flex items-center justify-center px-6 py-3 bg-special-red/10 text-black rounded-full hover:bg-special-red/15 shadow-sm transition mt-12 group">
+                Scan Your Report
+                <span
+                    class="ml-3 inline-flex items-center justify-center w-6 h-6 rounded-full text-sm group-hover:translate-x-[10px] transition-all duration-500">
+                    <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                        aria-hidden="true"></i>
+                </span>
+            </a>
+        </section>
+
+        <!-- Solutions Section -->
+        <section class="flex flex-col md:flex-row items-start justify-between bg-special-green container mx-auto mb-20">
+
+            <!-- Left Text Section -->
+            <div class="w-full h-full md:w-1/2 p-12 space-y-12 text-start font-light text-black">
+                <div>
+                    <h2 class="text-2xl md:text-5xl leading-snug">
+                        We provide comprehensive <br class="hidden md:block" /> medical solutions
+                    </h2>
+                    <p class="md:text-xl mt-6">
+                        Brain tumors are life-threatening abnormalities caused by uncontrolled growth of brain cells.
+                        Traditional diagnosis using MRI scans requires expert medical interpretation, which is
+                        time-consuming and prone to human error.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl md:text-5xl mb-6">Our Value Proposition</h3>
+                    <ul class="space-y-4 md:text-xl">
+                        <li class="flex items-center gap-3 text-start">
+                            <i class="fa fa-check text-gray-600" aria-hidden="true"></i>
+                            High accuracy with minimal preprocessing.
+                        </li>
+                        <li class="flex items-center gap-3 text-start">
+                            <i class="fa fa-check text-gray-600" aria-hidden=" true"></i>
+                            Automated tumor detection reduces diagnostic time.
+                        </li>
+                        <li class="flex items-center gap-3 text-start">
+                            <i class="fa fa-check text-gray-600" aria-hidden=" true"></i>
+                            Can be easily extended to multi-class classification
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Image Section -->
+            <div class="w-full md:w-1/2 h-full">
+                <img loading="lazy" src="/assets/soltions.png" alt="Solutions" class="w-full h-full object-cover " />
+            </div>
+
+        </section>
+
+        <!-- About Section -->
+        <section class="container mx-auto md:mb-20 mb-8 px-4 md:px-12 flex flex-col lg:flex-row items-start text-black">
+
+            <!-- Left: Image -->
+            <div class="w-full lg:w-1/2">
+                <img loading="lazy" src="/assets/about.png" alt="About"
+                    class="w-full h-auto rounded-2xl object-cover" />
+            </div>
+
+            <!-- Right: Content -->
+            <div class="w-full lg:w-1/2 space-y-4 px-4 py-12 md:px-12">
+                <h3 class="text-sm font-bold uppercase tracking-wide">About Us</h3>
+                <h2 class="text-2xl md:text-5xl font-light leading-snug">
+                    Brain tumor detection has been a critical area of
+                </h2>
+                <p class="font-light md:text-xl">
+                    research in medical imaging due to the complexity and severity of brain tumors. Manual diagnosis
+                    using MRI scans is time-consuming and prone to human error.
+                </p>
+
+                <a href="./pages/about"
+                    class="inline-flex items-center justify-center px-6 py-3 bg-special-red/10 text-black rounded-md hover:bg-special-red/15 shadow-sm transition mt-12 group">
+                    More Info
+                    <span
+                        class="ml-3 inline-flex items-center justify-center w-6 h-6 rounded-full text-sm group-hover:translate-x-[10px] transition-all duration-500">
+                        <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                            aria-hidden="true"></i>
+                    </span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Industries We Serve Section -->
+        <section class="container mx-auto mb-20 px-4 md:px-12 text-center space-y-12 text-black">
+            <div>
+                <h3 class="text-sm font-bold uppercase tracking-wide">Industries We Serve</h3>
+                <h1 class="text-2xl md:text-5xl max-w-4xl mx-auto font-light mt-4 px-4 leading-snug">
+                    Our Brain Tumor Detection System powered by Deep Learning and AI
+                </h1>
+                <p class="mt-4 max-w-5xl mx-auto leading-snug font-light md:text-xl">
+                    has broad applications across multiple industries where medical imaging, diagnostics, and research
+                    play a vital role. The solution is designed to bring automation, accuracy, and efficiency to
+                    healthcare workflows.
+                </p>
+            </div>
+
+            <!-- Industries Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ">
+
+                <div
+                    class="bg-special-red/10 overflow-hidden hover:shadow transition border-t-4 border-special-red rounded-t">
+                    <img loading="lazy" src="/assets/industries/healthcare.png" alt="healthcare"
+                        class="w-full h-64 object-cover" />
+                    <div class="p-8">
+                        <h4 class="text-2xl">Healthcare & Hospitals</h4>
+                        <p class="font-light md:text-lg mt-2">
+                            Hospitals and diagnostic centers can integrate this system into their radiology departments
+                            for real-time brain tumor detection
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-start px-8 mb-8 space-y-4">
+                        <h4 class="text-2xl">We help you:</h4>
+                        <ul class="space-y-4 font-light">
+                            <li class="flex items-center gap-3 text-start">
+                                <i class="fa fa-check text-special-red" aria-hidden="true"></i>
+                                Automates MRI scan analysis.
+                            </li>
+                            <li class="flex items-center gap-3 text-start">
+                                <i class="fa fa-check text-special-red" aria-hidden=" true"></i>
+                                Reduces manual workload for radiologists.
+                            </li>
+                            <li class="flex items-center gap-3 text-start">
+                                <i class="fa fa-check text-special-red" aria-hidden=" true"></i>
+                                Helps in early tumor diagnosis and treatment planning.
+                            </li>
+                            <li class="flex items-center gap-3 text-start">
+                                <i class="fa fa-check text-special-red" aria-hidden=" true"></i>
+                                Improves overall patient outcomes and reduces diagnostic delays.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-special-red/10 overflow-hidden hover:shadow transition border-t-4 border-special-red rounded-t">
+                    <img loading="lazy" src="/assets/industries/research.png" alt="Research"
+                        class="w-full h-64 object-cover" />
+                    <div class="p-8">
+                        <h4 class="text-2xl">Medical Research Institute</h4>
+                        <p class="font-light md:text-lg mt-2">
+                            Research organizations can use this project to study brain tumor patterns, image
+                            classification, and AI-driven diagnostics.
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-start px-8 mb-8 space-y-4">
+                        <h4 class="text-2xl">We help you:</h4>
+                        <ul class="space-y-4 font-light">
+                            <li class="flex items-center gap-3 text-start">
+                                <i class="fa fa-check text-special-red" aria-hidden="true"></i>
+                                Enables dataset collection and pattern recognition.
+                            </li>
+                            <li class="flex items-center gap-3 text-start">
+                                <i class="fa fa-check text-special-red" aria-hidden=" true"></i>
+                                Supports research on tumor behavior and model accuracy.
+                            </li>
+                            <li class="flex items-center gap-3 text-start">
+                                <i class="fa fa-check text-special-red" aria-hidden=" true"></i>
+                                Can be customized for clinical trials or AI healthcare research.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-special-red/10 overflow-hidden hover:shadow transition border-t-4 border-special-red rounded-t">
+                    <img loading="lazy" src="/assets/industries/telemedicine.png" alt="Telemedicine"
+                        class="w-full h-64 object-cover" />
+                    <div class="p-8">
+                        <h4 class="text-2xl">Telemedicine Platforms</h4>
+                        <p class="font-light md:text-lg mt-2">
+                            In remote or underdeveloped areas, telemedicine services can use this AI model for remote
+                            MRI analysis.
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-start px-8 mb-8 space-y-4">
+                        <h4 class="text-2xl">We help you:</h4>
+                        <ul class="space-y-4 font-light">
+                            <li class="flex items-center gap-3 text-start">
+                                <i class="fa fa-check text-special-red" aria-hidden="true"></i>
+                                Provides instant diagnostic reports to doctors in different locations.
+                            </li>
+                            <li class="flex items-center gap-3 text-start">
+                                <i class="fa fa-check text-special-red" aria-hidden=" true"></i>
+                                Reduces the dependency on local specialists.
+                            </li>
+                            <li class="flex items-center gap-3 text-start">
+                                <i class="fa fa-check text-special-red" aria-hidden=" true"></i>
+                                Makes advanced diagnostics accessible to rural populations.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <a href="./pages/industries"
+                class="inline-flex items-center justify-center px-6 py-3 bg-special-red/10 text-black rounded-md hover:bg-special-red/15 shadow-sm transition group">
+                More Industries
+                <span
+                    class="ml-3 inline-flex items-center justify-center w-6 h-6 rounded-full text-sm group-hover:translate-x-[10px] transition-all duration-500">
+                    <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                        aria-hidden="true"></i>
+                </span>
+            </a>
+        </section>
+
+        <!-- Case Studies Section -->
+        <section
+            class="container mx-auto space-x-12 mb-20 px-4 md:px-12 flex flex-col lg:flex-row items-start flex-col-reverse text-black">
+            <!-- Left: Content -->
+            <div class="w-full lg:w-1/2 space-y-4 px-4 md:px-0 md:pt-12 ">
+                <h3 class="text-sm font-bold uppercase tracking-wide">CASE STUDIES</h3>
+                <h2 class="text-2xl md:text-5xl font-light leading-snug">
+                    Several case studies were conducted using MRI scan
+                </h2>
+                <p class="font-light md:text-xl">
+                    datasets consisting of Glioma, Meningioma,
+                    Pituitary tumors, and Normal (No Tumor) images. These case studies illustrate how the system
+                    performs across different tumor types and scenarios.
+                </p>
+                <div class="p-4 border-l-4 border-special-red bg-slate-50 rounded-sm  mt-8">
+                    <h2 class="text-xl">Glioma Tumor Detection</h2>
+                    <div class="text-start mt-2 flex flex-col space-y-1">
+                        <h3 class="font-light">Patient Information</h3>
+                        <div class="flex gap-10">
+                            <p>Age: <span class="font-light">45 years</span></p>
+                            <p>Gender: <span class="font-light">Male</span></p>
+                        </div>
+                        <p class="">Symptoms: <span class="font-light">Frequent headaches, nausea, and vision
+                                issues</span></p>
+                    </div>
+                </div>
+                <a href="./pages/case-studies"
+                    class="inline-flex items-center justify-center px-6 py-3 bg-special-red/10 text-black rounded-md hover:bg-special-red/15 shadow-sm transition mt-12 group">
+                    More Studies
+                    <span
+                        class="ml-3 inline-flex items-center justify-center w-6 h-6 rounded-full text-sm group-hover:translate-x-[10px] transition-all duration-500">
+                        <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                            aria-hidden="true"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Right: Image -->
+            <div class="w-full lg:w-1/2 mb-12 md:mb-0">
+                <img loading="lazy" src="/assets/case-studies.png" alt="Team Meeting"
+                    class="w-full h-auto rounded-2xl object-cover" />
+            </div>
+        </section>
+
+        <!-- Resources Section -->
+        <section
+            class="container mx-auto mb-20 md:mb-0 flex flex-col md:flex-row items-start justify-center bg-special-red/10">
+
+            <!-- Left Image -->
+            <div class="md:w-1/2 w-full ">
+                <img loading="lazy" src="/assets/resources.png" alt="Resources" class="w-full h-auto object-cover" />
+            </div>
+
+            <!-- Right Form -->
+            <div class="md:w-1/2 w-full h-full p-8 md:p-12 space-y-12 text-black">
+                <div class="w-full space-y-4">
+                    <h3 class="text-sm font-bold uppercase tracking-wide">RESOURCES</h3>
+                    <h2 class="text-2xl md:text-5xl font-light leading-snug">
+                        The development and implementation of
+                        this tool
+                    </h2>
+                    <p class="font-light md:text-xl">
+                        relied on a combination of datasets, software tools, frameworks, and research publications.
+                        These
+                        resources collectively enabled efficient model training, image processing, and performance
+                        evaluation.
+                    </p>
+                </div>
+
+                <a href="./pages/resources"
+                    class="inline-flex items-center justify-center px-6 py-3 bg-white text-black rounded-md hover:bg-slate-50 shadow-sm transition mt-8 group">
+                    More Resources
+                    <span
+                        class="ml-3 inline-flex items-center justify-center w-6 h-6 rounded-full text-sm group-hover:translate-x-[10px] transition-all duration-500">
+                        <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                            aria-hidden="true"></i>
+                    </span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Blog Section -->
+        <section class="container mx-auto mb-20 flex flex-col md:flex-row items-start justify-center">
+
+            <!-- Left Form -->
+            <div class="md:w-1/2 w-full h-full p-8 md:p-12 space-y-12 bg-special-green text-black ">
+                <div class="w-full space-y-4">
+                    <h3 class="text-sm font-bold uppercase tracking-wide">Blogs</h3>
+                    <h2 class="text-2xl md:text-5xl font-light leading-snug">
+                        Our project shares knowledge, progress, and insights
+                    </h2>
+                    <p class="font-light md:text-xl">
+                        about AI in medical imaging, deep learning advancements, and the impact of computer vision in
+                        healthcare. Each article aims to educate readers—students, developers, and healthcare
+                        professionals—about how artificial intelligence is transforming medical diagnostics.
+                    </p>
+                </div>
+
+                <a href="./pages/blogs"
+                    class="md:inline-flex items-center justify-center px-6 py-3 bg-white text-black rounded-md hover:bg-slate-50 shadow-sm transition mt-8 hidden group">
+                    View All Blogs
+                    <span
+                        class="ml-3 inline-flex items-center justify-center w-6 h-6 rounded-full text-sm group-hover:translate-x-[10px] transition-all duration-500">
+                        <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                            aria-hidden="true"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Right Image -->
+            <div class="md:w-1/2 h-full w-full p-8 md:p-12 bg-white">
+                <div class="space-y-4">
+                    <div
+                        class="p-4 border-l-4 border-special-red bg-slate-50 rounded-sm transform transition-transform duration-300 ease-in-out hover:scale-102 group">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-2">
+                            <h2>Understanding Brain Tumor Detection Using Deep Learning</h2>
+                            <p class="text-xs text-special-red text-nowrap">Date: March 15, 2025</p>
+                        </div>
+                        <div class="flex justify-between">
+                            <p class="text-start font-light mt-2">
+                                The integration of deep learning with medical imaging has revolutionized early detection
+                                systems. This article explains how Convolutional Neural Networks (CNNs) analyze MRI
+                                scans to detect brain tumors with high precision.
+                            </p>
+                            <a href="./pages/news/news3"
+                                class="self-end mt-1 ml-1 inline-flex items-center justify-center w-10 h-full rounded-full text-sm ">
+                                <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                                    aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div
+                        class="p-4 border-l-4 border-special-red bg-slate-50 rounded-sm transform transition-transform duration-300 ease-in-out hover:scale-102 group">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-2">
+                            <h2>Building Our Brain Tumor Detection Model</h2>
+                            <p class="text-xs text-special-red text-nowrap">March 25, 2025</p>
+                        </div>
+                        <div class="flex justify-between">
+                            <p class="text-start font-light mt-2">
+                                This blog dives into the technical foundation of our system.
+                            </p>
+                            <a href="./pages/news/news3"
+                                class="self-end mt-1 ml-1 inline-flex items-center justify-center w-10 h-full rounded-full text-sm ">
+                                <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                                    aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div
+                        class="p-4 border-l-4 border-special-red bg-slate-50 rounded-sm transform transition-transform duration-300 ease-in-out hover:scale-102 group">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-2">
+                            <h2>How Artificial Intelligence is Revolutionizing Medical Diagnosis</h2>
+                            <p class="text-xs text-special-red text-nowrap">April 2, 2025</p>
+                        </div>
+                        <div class="flex justify-between">
+                            <p class="text-start font-light mt-2">
+                                This article explores the global impact of AI in healthcare.
+                            </p>
+                            <a href="./pages/news/news3"
+                                class="self-end mt-1 ml-1 inline-flex items-center justify-center w-10 h-full rounded-full text-sm ">
+                                <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                                    aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div
+                        class="p-4 border-l-4 border-special-red bg-slate-50 rounded-sm transform transition-transform duration-300 ease-in-out hover:scale-102 group">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-2">
+                            <h2>From MRI Image to Diagnosis</h2>
+                            <p class="text-xs text-special-red text-nowrap">April 10, 2025</p>
+                        </div>
+                        <div class="flex justify-between">
+                            <p class="text-start font-light mt-2">
+                                This post follows a real-world case study using our model.
+                            </p>
+                            <a href="./pages/news/news3"
+                                class="self-end mt-1 ml-1 inline-flex items-center justify-center w-10 h-full rounded-full text-sm ">
+                                <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                                    aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="./pages/news"
+                    class="inline-flex items-center justify-center px-6 py-3 bg-special-red/10 md:bg-white text-black rounded-md hover:bg-special-red/15 md:hover:bg-slate-50 shadow-sm transition mt-8 md:hidden group">
+                    View All News
+                    <span
+                        class="ml-3 inline-flex items-center justify-center w-6 h-6 rounded-full text-sm group-hover:translate-x-[10px] transition-all duration-500">
+                        <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                            aria-hidden="true"></i>
+                    </span>
+                </a>
+            </div>
+
+        </section>
+
+        <!-- FAQ's Section -->
+        <section class="container mx-auto mb-20 px-4 md:px-12 text-center space-y-12 text-black">
+            <div>
+                <h3 class="text-sm font-bold uppercase tracking-wide">Frequently Asked Questions</h3>
+                <h1 class="text-2xl md:text-5xl max-w-4xl mx-auto font-light mt-4 px-4 leading-snug">
+                    Commonly asked questions about the model — project’s purpose, working, tech stack, and applications.
+                </h1>
+            </div>
+
+            <!-- Qestions -->
+            <div class="max-w-2xl mx-auto p-4 md:p-0 space-y-4">
+                <div class="faq-item font-light hover:border border-gray-200 md:text-lg" onclick="toggleFAQ(this)">
+                    <div class="flex justify-between">
+                        <h3 class="text-wrap w-5/6">What is the main objective of this project?</h3>
+                        <button class="toggle bg-special-red/15">+</button>
+                    </div>
+                    <p class="faq-answer">
+                        The main goal of this project is to automatically detect and classify brain tumors from MRI
+                        images using deep learning.
+                        By leveraging Convolutional Neural Networks (CNNs) and transfer learning (VGG16), the system can
+                        accurately predict whether a brain MRI scan contains a tumor and identify its type (e.g.,
+                        Glioma, Meningioma, Pituitary, or No Tumor).</p>
+                </div>
+                <div class="faq-item font-light hover:border border-gray-200 md:text-lg" onclick="toggleFAQ(this)">
+                    <div class="flex justify-between">
+                        <h3 class="text-wrap w-5/6">Which technologies and libraries are used in this project?</h3>
+                        <button class="toggle bg-special-red/15">+</button>
+                    </div>
+                    <p class="faq-answer">The project uses Python as the main programming language with the following
+                        frameworks and libraries:</p>
+                    <ul class="faq-answer flex flex-col space-y-1">
+                        <li>TensorFlow / Keras: Deep learning model building</li>
+                        <li>NumPy & Pandas: Data processing</li>
+                        <li>PIL: Image preprocessing</li>
+                        <li>Matplotlib: Visualization</li>
+                        <li>Scikit-learn: Evaluation metrics and confusion matrix</li>
+                        <li>Google Colab: Training environment with GPU support</li>
+                    </ul>
+                </div>
+                <div class="faq-item font-light hover:border border-gray-200 md:text-lg" onclick="toggleFAQ(this)">
+                    <div class="flex justify-between">
+                        <h3 class="text-wrap w-5/6">What dataset was used to train the model?</h3>
+                        <button class="toggle bg-special-red/15">+</button>
+                    </div>
+                    <p class="faq-answer">We used the Brain MRI Dataset available on Kaggle, which contains labeled MRI
+                        images under four categories:</p>
+                    <ul class="faq-answer flex flex-col space-y-1">
+                        <li>Glioma Tumor</li>
+                        <li>Meningioma Tumor</li>
+                        <li>Pituitary Tumor</li>
+                        <li>No Tumor</li>
+                    </ul>
+                </div>
+                <div class="faq-item font-light hover:border border-gray-200 md:text-lg" onclick="toggleFAQ(this)">
+                    <div class="flex justify-between">
+                        <h3 class="text-wrap w-5/6">How does the model work?</h3>
+                        <button class="toggle bg-special-red/15">+</button>
+                    </div>
+                    <p class="faq-answer">The system follows these steps:</p>
+                    <ul class="faq-answer flex flex-col space-y-1">
+                        <li>Data Preprocessing: MRI images are resized, normalized, and augmented.</li>
+                        <li>Feature Extraction: The pre-trained VGG16 model extracts key visual patterns from images.
+                        </li>
+                        <li>Classification: Fully connected layers analyze these patterns to classify tumor types.</li>
+                        <li>Prediction: The model predicts the tumor class with a confidence score.</li>
+                    </ul>
+                </div>
+                <div class="faq-item font-light hover:border border-gray-200 md:text-lg bg-special-red/10"
+                    onclick="toggleFAQ(this)">
+                    <div class="flex justify-between">
+                        <h3 class="text-wrap w-5/6">What is Transfer Learning, and why is it used here?</h3>
+                        <button class="toggle bg-special-red/15">+</button>
+                    </div>
+                    <p class="faq-answer">Transfer Learning allows us to use a pre-trained model (like VGG16 trained on
+                        ImageNet) and fine-tune it for a specific task — in this case, brain tumor classification. This
+                        saves training time, requires fewer data, and improves accuracy since the base model already
+                        understands fundamental image features.</p>
+                </div>
+
+                <script>
+                    function toggleFAQ(element) {
+                        element.classList.toggle("active");
+                        let button = element.querySelector(".toggle");
+                        let isOpen = element.classList.contains("active");
+                        button.textContent = isOpen ? "-" : "+";
+                    }
+                </script>
+
+            </div>
+
+            <a href="./pages/faqs"
+                class="inline-flex items-center justify-center px-6 py-3 bg-special-red/10 text-black rounded-md hover:bg-special-red/15 shadow-sm transition group">
+                More FAQ's
+                <span
+                    class="ml-3 inline-flex items-center justify-center w-6 h-6 rounded-full text-sm group-hover:translate-x-[10px] transition-all duration-500">
+                    <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                        aria-hidden="true"></i>
+                </span>
+            </a>
+        </section>
+
+        <!-- Request for Donation -->
+        <section class="container mx-auto relative">
+            <div class="flex flex-col md:flex-row items-start justify-center bg-special-red/10">
+                <!-- Left Form -->
+                <div class="md:w-1/2 w-full h-full p-8 md:p-12 space-y-12 text-black">
+                    <div>
+                        <h4 class="text-sm font-bold uppercase tracking-wide">Request for Donation</h4>
+                        <h2 class="text-2xl md:text-5xl font-light leading-snug mt-4">Your support can help us:</h2>
+                        <ul class="font-light flex flex-col mt-4 space-y-4 md:text-xl">
+                            <li>Expand our MRI datasets with diverse and high-quality images.</li>
+                            <li>Improve model accuracy and performance.</li>
+                            <li>Develop a user-friendly platform for hospitals and medical professionals.</li>
+                            <li>Conduct more case studies and validation research.</li>
+                            <li>Share open-source tools with students, researchers, and healthcare innovators.</li>
+                        </ul>
+                    </div>
+
+                    <a href="./pages/know-more"
+                        class="inline-flex items-center justify-center px-6 py-3 bg-white text-black rounded-md hover:bg-slate-50 shadow-sm transition mt-8 group">
+                        Know More
+                        <span
+                            class="ml-3 inline-flex items-center justify-center w-6 h-6 rounded-full text-sm group-hover:translate-x-[10px] transition-all duration-500">
+                            <i class="fa fa-arrow-right-long -rotate-45 group-hover:rotate-0 transition-all duration-500"
+                                aria-hidden="true"></i>
+                        </span>
+                    </a>
+                </div>
+
+                <!-- Right Image -->
+                <div class="md:w-1/2 w-full bg-special-red">
+                    <img loading="lazy" src="/assets/donation.png" alt="donation" class="w-full h-auto object-cover" />
+                </div>
+            </div>
+            <div class="w-full md:relative flex justify-center md:items-end ">
+                <div
+                    class="md:absolute px-8 py-6 w-full md:max-w-6xl mx-auto z-20 bg-white/40 backdrop-blur-xs flex flex-col md:flex-row justify-between items-center gap-6 text-xl rounded-2xl mb-10 text-center">
+                    <h2>Subscribe</h2>
+                    <p class="font-light text-lg">
+                        Receive updates about our research, donor acknowledgments, and project progress.
+                    </p>
+                    <form action=""
+                        class="border border-gray-200 md:border-0 rounded-xl overflow-hidden bg-white text-sm flex justify-center items-center flex-nowrap">
+                        <input type="email" required class="p-3 outline-none" placeholder="Enter Email">
+                        <button type="submit" class="px-6 py-3 bg-special-green hover:bg-green-200 cursor-pointer">
+                            SUBSCRIBE
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="container mx-auto border-t border-gray-200">
+        <div class="w-full p-8 md:p-12 flex flex-col md:flex-row justify-between items-start gap-10 text-gray-800">
+
+            <div class="space-y-12  max-w-xl ">
+                <div class="space-y-3">
+                    <a href="/" class="flex items-center space-x-2">
+                        <img src="/assets/logo.png" alt="YYOG" class="h-12 w-auto" />
+                    </a>
+                    <h2 class="text-2xl font-light leading-snug">
+                        Tumor the AI-powered System<br />designed to assist radiologists and medical professionals in
+                        achieving faster, more reliable diagnoses, reducing human error, and improving patient outcomes.
+                    </h2>
+                </div>
+                <div class="space-y-3">
+                    <div class="font-medium leading-snug">
+                        <h2> Address: </h2>
+                        <p class="font-light">Saharsa, Bihar, India</p>
+                    </div>
+                    <div class="font-medium leading-snug">
+                        <h2> Email: </h2>
+                        <p class="font-light">shivamsingh.dev0@gmail.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Navigation Links -->
+            <div class="flex flex-wrap gap-x-10 gap-y-2 text-xl font-light">
+                <div class="flex flex-col space-y-1">
+                    <a href="/" class="hover:underline">Home</a>
+                    <a href="./pages/about" class="hover:underline">About</a>
+                    <a href="./pages/tools" class="hover:underline">Tools</a>
+                    <a href="./pages/case-studies" class="hover:underline">Case Studies</a>
+                    <a href="./pages/resources" class="hover:underline">Resources</a>
+                </div>
+                <div class="flex flex-col space-y-1">
+                    <a href="./pages/blogs" class="hover:underline">Blogs</a>
+                    <a href="./pages/subscribe" class="hover:underline">Subscribe</a>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-2xl font-light leading-snug">
+                <h4>Follow Us</h4>
+                <div class="flex gap-6 text-gray-600 text-xl">
+                    <a href="https://www.github.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="github">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="https://x.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="X / Twitter">
+                        <i class="fab fa-x-twitter"></i>
+                    </a>
+                    <a href="https://instagram.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://youtube.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-100 py-6 text-center text-sm text-gray-500 space-y-1">
+            <p>Copyright © <span id="year"></span> tumer – All Rights Reserved.</p>
+            <p>Developed by <a href="https://synoize.vercel.app" target="_blank"
+                    class="font-medium text-gray-700 hover:text-special-red">Synoize</a></p>
+            <script>
+                document.getElementById("year").textContent = new Date().getFullYear();
+            </script>
+        </div>
+    </footer>
+
+</body>
+
+</html>

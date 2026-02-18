@@ -1,0 +1,11 @@
+flask
+flask-sqlalchemy
+flask-login
+werkzeug
+pillow
+numpy
+tensorflow
+scikit-learn
+matplotlib
+seaborn
+h5py

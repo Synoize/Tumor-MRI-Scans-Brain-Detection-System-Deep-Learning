@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?
+    family=Outfit:wght@100;200;300;400;500;600;700;800;900&
+    family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&
+    family=Roboto:wght@100;300;400;500;700;900&
+    family=Source+Sans+3:wght@200;300;400;500;600;700;800;900&
+    display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-special-blue: #0CA0E4;
+            --color-special-green: #DCF9E3;
+            --color-special-red: #C23700;
+        }
+        
+        ::selection {
+            background-color: var(--color-special-red);
+            color: #ffffff;
+        }
+        
+        * {
+            scroll-behavior: smooth;
+        }
+    </style>
+    <title>Profile - MRI Tumor Detection</title>
+</head>
+<style>
+    @keyframes slideInLeft {
+        from {
+            transform: translateX(-100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    .animate-slide-in-left {
+        animation: slideInLeft 0.3s ease-out forwards;
+    }
+</style>
+
+<body class="bg-white">
+    <!-- Header -->
+    <header
+        class="container mx-auto px-6 sm:px-12 py-4 flex items-center justify-between border-b border-gray-200 relative">
+
+        <!-- Logo -->
+        <a href="/" class="flex items-center space-x-2">
+            <img src="/assets/logo.png" alt="YYOG" class="h-12 w-auto" />
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden sm:flex items-center space-x-8 text-black">
+            <a href="/" class="hover:text-special-red">Home</a>
+            <a href="./pages/about" class="hover:text-special-red ">About</a>
+            <a href="./pages/tools" class="hover:text-special-red">Tools</a>
+            <a href="./pages/case-studies" class="hover:text-special-red">Case Studies</a>
+            <a href="./pages/resources" class="hover:text-special-red">Resources</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+
+            <!-- Auth Section -->
+            <div class="flex items-center space-x-3">
+                {% if current_user.is_authenticated %}
+                <span class="flex items-center gap-3">
+                    <span class="first-letter:uppercase">
+                        {{ current_user.username }}
+                    </span>
+                    <a href="{{ url_for('profile') }}" class="w-10 h-10 flex items-center justify-center 
+                          rounded-full bg-gray-100 text-special-red hover:bg-gray-200">
+                        <i class="fas fa-user text-sm"></i>
+                    </a>
+                </span>
+                {% else %}
+                 <a href="{{ url_for('login') }}"
+                    class="text-white bg-special-red hover:bg-special-red/90 px-4 py-2 rounded-full  text-sm">
+                    Login/Register
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Toggle Button -->
+            <button id="menu-toggle"
+                class="sm:hidden flex items-center justify-center w-10 h-10 focus:outline-none z-50 cursor-pointer text-gray-800 hover:text-special-red transition-colors">
+                <i id="menu-icon" class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile -->
+    <div id="mobile-menu"
+        class="sm:hidden hidden fixed h-[100vh] top-0 left-0 w-4/5 z-40 bg-white px-6 py-4 border-r border-gray-200 text-lg flex flex-col gap-2 animate-slide-in-left shadow-2xl">
+
+        <a href="/">
+            <img src="/assets/logo.png" alt="YYOG" class="h-12 w-auto mb-4" />
+        </a>
+
+        <a href="/" class="py-3 font-medium flex items-center">
+            <i class="fas fa-home mr-3"></i>Home
+        </a>
+
+        <a href="./pages/about" class="py-3 flex items-center">
+            <i class="fas fa-info-circle mr-3"></i>About
+        </a>
+
+        <a href="./pages/tools" class="py-3 flex items-center">
+            <i class="fas fa-tools mr-3"></i>Tools
+        </a>
+
+        <a href="./pages/case-studies" class="py-3 flex items-center">
+            <i class="fas fa-book-open mr-3"></i>Case Studies
+        </a>
+
+        <a href="./pages/resources" class="py-3 flex items-center">
+            <i class="fas fa-file-alt mr-3"></i>Resources
+        </a>
+
+        <hr class="my-4">
+
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('profile') }}" class="py-3 flex items-center">
+            <i class="fas fa-user mr-3"></i>Profile
+        </a>
+
+        <a href="{{ url_for('logout') }}" class="py-3 text-red-600 flex items-center">
+            <i class="fas fa-sign-out-alt mr-3"></i>Logout
+        </a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="py-3 flex items-center">
+            <i class="fas fa-sign-in-alt mr-3"></i>Login
+        </a>
+
+        <a href="{{ url_for('register') }}" class="py-3 bg-special-red text-white rounded-lg text-center">
+            Register
+        </a>
+        {% endif %}
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+        const menuIcon = document.getElementById("menu-icon");
+
+        menuToggle.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+
+            if (mobileMenu.classList.contains("hidden")) {
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            } else {
+                menuIcon.classList.remove("fa-bars");
+                menuIcon.classList.add("fa-times");
+            }
+        });
+
+        // Close when clicking links
+        document.querySelectorAll("#mobile-menu a").forEach(link => {
+            link.addEventListener("click", () => {
+                mobileMenu.classList.add("hidden");
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            });
+        });
+
+        // Close when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!mobileMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+                mobileMenu.classList.add("hidden");
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            }
+        });
+    </script>
+
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Profile Info -->
+            <div class="bg-slate-50 rounded-lg p-6 mb-8">
+                <h1 class="text-2xl font-bold text-gray-800 mb-4">My Profile</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-500">Username</p>
+                        <p class="text-lg font-medium">{{ user.username }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Email</p>
+                        <p class="text-lg font-medium">{{ user.email }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Member Since</p>
+                        <p class="text-lg font-medium">{{ user.created_at.strftime('%B %d, %Y') }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Total Predictions</p>
+                        <p class="text-lg font-medium">{{ predictions|length }}</p>
+                    </div>
+
+                    <a href="{{ url_for('logout') }}" class="mt-2 text-red-600 hover:text-red-700 flex items-center">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+
+            <!-- Predictions History -->
+            <div class="bg-slate-50 rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800">My Prediction History</h2>
+                </div>
+
+                {% if predictions %}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Filename
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Result</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Confidence
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for pred in predictions %}
+                            <tr>
+                                <td class="px-6 py-4 text-sm text-gray-500">{{ pred.created_at.strftime('%Y-%m-%d
+                                    %H:%M') }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ pred.filename }}</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                        {% if pred.prediction == 'Notumor' %}bg-green-100 text-green-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ pred.prediction }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ pred.confidence }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-8 text-center text-gray-500">
+                    <i class="fas fa-brain text-4xl mb-4"></i>
+                    <p>No predictions yet. <a href="{{ url_for('pages', page='tools.html') }}"
+                            class="text-special-red hover:underline">Try it now!</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

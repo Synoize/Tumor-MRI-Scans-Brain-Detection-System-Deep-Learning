@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?
+    family=Outfit:wght@100;200;300;400;500;600;700;800;900&
+    family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&
+    family=Roboto:wght@100;300;400;500;700;900&
+    family=Source+Sans+3:wght@200;300;400;500;600;700;800;900&
+    display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-special-blue: #0CA0E4;
+            --color-special-green: #DCF9E3;
+            --color-special-red: #C23700;
+        }
+        
+        ::selection {
+            background-color: var(--color-special-red);
+            color: #ffffff;
+        }
+        
+        * {
+            scroll-behavior: smooth;
+        }
+    </style>
+    <title>About - MRI Tumor Detection</title>
+</head>
+<style>
+    @keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.animate-slide-in-left {
+    animation: slideInLeft 0.3s ease-out forwards;
+}
+</style>
+
+<body class="bg-white">
+    <!-- Header -->
+    <header
+        class="container mx-auto px-6 sm:px-12 py-4 flex items-center justify-between border-b border-gray-200 relative">
+
+        <!-- Logo -->
+        <a href="/" class="flex items-center space-x-2">
+            <img src="/assets/logo.png" alt="YYOG" class="h-12 w-auto" />
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden sm:flex items-center space-x-8 text-black">
+            <a href="/" class="hover:text-special-red ">Home</a>
+            <a href="./about" class="text-special-red font-medium">About</a>
+            <a href="./tools" class="hover:text-special-red">Tools</a>
+            <a href="./case-studies" class="hover:text-special-red">Case Studies</a>
+            <a href="./resources" class="hover:text-special-red">Resources</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+
+            <!-- Auth Section -->
+            <div class="flex items-center space-x-3">
+                {% if current_user.is_authenticated %}
+                <span class="flex items-center gap-3">
+                    <span class="first-letter:uppercase">
+                        {{ current_user.username }}
+                    </span>
+                    <a href="{{ url_for('profile') }}" class="w-10 h-10 flex items-center justify-center 
+                          rounded-full bg-gray-100 text-special-red hover:bg-gray-200">
+                        <i class="fas fa-user text-sm"></i>
+                    </a>
+                </span>
+                {% else %}
+                 <a href="{{ url_for('login') }}"
+                    class="text-white bg-special-red hover:bg-special-red/90 px-4 py-2 rounded-full  text-sm">
+                    Login/Register
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Toggle Button -->
+            <button id="menu-toggle"
+                class="sm:hidden flex items-center justify-center w-10 h-10 focus:outline-none z-50 cursor-pointer text-gray-600 transition-colors">
+                <i id="menu-icon" class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile -->
+    <div id="mobile-menu"
+        class="sm:hidden hidden fixed h-[100vh] top-0 left-0 w-4/5 z-40 bg-white px-6 py-4 border-r border-gray-200 text-lg flex flex-col gap-2 animate-slide-in-left shadow-2xl">
+
+        <a href="/">
+            <img src="/assets/logo.png" alt="YYOG" class="h-12 w-auto mb-4" />
+        </a>
+
+        <a href="/" class="py-3 font-medium flex items-center">
+            <i class="fas fa-home mr-3"></i>Home
+        </a>
+
+        <a href="./pages/about" class="py-3 text-special-red flex items-center">
+            <i class="fas fa-info-circle mr-3"></i>About
+        </a>
+
+        <a href="./pages/tools" class="py-3 flex items-center">
+            <i class="fas fa-tools mr-3"></i>Tools
+        </a>
+
+        <a href="./pages/case-studies" class="py-3 flex items-center">
+            <i class="fas fa-book-open mr-3"></i>Case Studies
+        </a>
+
+        <a href="./pages/resources" class="py-3 flex items-center">
+            <i class="fas fa-file-alt mr-3"></i>Resources
+        </a>
+
+        <hr class="my-4">
+
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('profile') }}" class="py-3 flex items-center">
+            <i class="fas fa-user mr-3"></i>Profile
+        </a>
+
+        <a href="{{ url_for('logout') }}" class="py-3 text-red-600 flex items-center">
+            <i class="fas fa-sign-out-alt mr-3"></i>Logout
+        </a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="py-3 flex items-center">
+            <i class="fas fa-sign-in-alt mr-3"></i>Login
+        </a>
+
+        <a href="{{ url_for('register') }}" class="py-3 bg-special-red text-white rounded-lg text-center">
+            Register
+        </a>
+        {% endif %}
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+        const menuIcon = document.getElementById("menu-icon");
+
+        menuToggle.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+
+            if (mobileMenu.classList.contains("hidden")) {
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            } else {
+                menuIcon.classList.remove("fa-bars");
+                menuIcon.classList.add("fa-times");
+            }
+        });
+
+        // Close when clicking links
+        document.querySelectorAll("#mobile-menu a").forEach(link => {
+            link.addEventListener("click", () => {
+                mobileMenu.classList.add("hidden");
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            });
+        });
+
+        // Close when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!mobileMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+                mobileMenu.classList.add("hidden");
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            }
+        });
+    </script>
+
+
+    <!-- Floating Share Button Group -->
+    <div class="fixed bottom-8 right-8 z-30" id="share-container">
+        <div class="flex flex-col items-center space-y-3 relative">
+
+            <!-- Share Icons -->
+            <div id="share-icons"
+                class="flex flex-col items-center space-y-3 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none">
+
+                <!-- Twitter -->
+                <a href="https://x.com/synoize" target="_blank">
+                    <div
+                        class="bg-black text-white w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fab fa-x-twitter"></i>
+                    </div>
+                </a>
+
+                <!-- WhatsApp -->
+                <a href="https://wa.me/916205163577" target="_blank">
+                    <div
+                        class="bg-black w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fab fa-whatsapp text-green-400 text-xl"></i>
+                    </div>
+                </a>
+
+                <!-- LinkedIn -->
+                <a href="https://www.linkedin.com/in/synoize" target="_blank">
+                    <div
+                        class="bg-black w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fab fa-linkedin-in text-special-blue text-xl"></i>
+                    </div>
+                </a>
+
+                <!-- Email -->
+                <a href="mailto:shivamsingh.dev0@gmail.com">
+                    <div
+                        class="bg-black w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fas fa-envelope text-red-500 text-lg"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Main Share Button -->
+            <div id="share-button"
+                class="bg-special-red w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition cursor-pointer">
+                <i class="fas fa-share-alt text-xl"></i>
+            </div>
+        </div>
+    </div>
+    <script>
+        const shareButton = document.getElementById("share-button");
+        const shareIcons = document.getElementById("share-icons");
+        const shareContainer = document.getElementById("share-container");
+
+        let isOpen = false;
+
+        // Show on mouse enter
+        shareContainer.addEventListener("mouseenter", () => {
+            shareIcons.classList.remove("opacity-0", "translate-y-4", "pointer-events-none");
+            shareIcons.classList.add("opacity-100", "translate-y-0", "pointer-events-auto");
+            isOpen = true;
+        });
+
+        // Hide on mouse leave
+        shareContainer.addEventListener("mouseleave", () => {
+            shareIcons.classList.remove("opacity-100", "translate-y-0", "pointer-events-auto");
+            shareIcons.classList.add("opacity-0", "translate-y-4", "pointer-events-none");
+            isOpen = false;
+        });
+    </script>
+
+    <!-- main -->
+    <main>
+        <!-- Top Section -->
+        <section class="container mx-auto mb-20 text-center text-black">
+            <h2 class="text-sm uppercase tracking-wide mb-4 mt-12 font-bold">MRI Tumor Detection System</h2>
+            <h1 class="text-2xl md:text-5xl max-w-4xl mx-auto font-light mb-18 px-4 leading-snug">
+                Your trusted deep learning brain tumor detection model, scan your report
+            </h1>
+
+            
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="container mx-auto border-t border-gray-200">
+        <div class="w-full p-8 md:p-12 flex flex-col md:flex-row justify-between items-start gap-10 text-gray-800">
+
+            <div class="space-y-12  max-w-xl ">
+                <div class="space-y-3">
+                    <a href="/" class="flex items-center space-x-2">
+                        <img src="/assets/logo.png" alt="YYOG" class="h-12 w-auto" />
+                    </a>
+                    <h2 class="text-2xl font-light leading-snug">
+                        Tumor the AI-powered System<br />designed to assist radiologists and medical professionals in
+                        achieving faster, more reliable diagnoses, reducing human error, and improving patient outcomes.
+                    </h2>
+                </div>
+                <div class="space-y-3">
+                    <div class="font-medium leading-snug">
+                        <h2> Address: </h2>
+                        <p class="font-light">Shanti Nagar, Bhilai, Chattishgarh, India</p>
+                    </div>
+                    <div class="font-medium leading-snug">
+                        <h2> Email: </h2>
+                        <p class="font-light">shivamsingh.dev0@gmail.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Navigation Links -->
+            <div class="flex flex-wrap gap-x-10 gap-y-2 text-xl font-light">
+                <div class="flex flex-col space-y-1">
+                    <a href="/" class="hover:underline">Home</a>
+                    <a href="about.html" class="hover:underline">About</a>
+                    <a href="tools.html" class="hover:underline">Tools</a>
+                    <a href="case-studies.html" class="hover:underline">Case Studies</a>
+                    <a href="resources.html" class="hover:underline">Resources</a>
+                </div>
+                <div class="flex flex-col space-y-1">
+                    <a href="blogs.html" class="hover:underline">Blogs</a>
+                    <a href="subscribe.html" class="hover:underline">Subscribe</a>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-2xl font-light leading-snug">
+                <h4>Follow Us</h4>
+                <div class="flex gap-6 text-gray-600 text-xl">
+                    <a href="https://www.github.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="github">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="https://x.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="X / Twitter">
+                        <i class="fab fa-x-twitter"></i>
+                    </a>
+                    <a href="https://instagram.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://youtube.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-100 py-6 text-center text-sm text-gray-500 space-y-1">
+            <p>Copyright © <span id="year"></span> tumer – All Rights Reserved.</p>
+            <p>Developed by <a href="https://synoize.vercel.app" target="_blank"
+                    class="font-medium text-gray-700 hover:text-special-red">Synoize</a></p>
+            <script>
+                document.getElementById("year").textContent = new Date().getFullYear();
+            </script>
+        </div>
+    </footer>
+
+    <script src="/script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?
+    family=Outfit:wght@100;200;300;400;500;600;700;800;900&
+    family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&
+    family=Roboto:wght@100;300;400;500;700;900&
+    family=Source+Sans+3:wght@200;300;400;500;600;700;800;900&
+    display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-special-blue: #0CA0E4;
+            --color-special-green: #DCF9E3;
+            --color-special-red: #C23700;
+        }
+        
+        ::selection {
+            background-color: var(--color-special-red);
+            color: #ffffff;
+        }
+        
+        * {
+            scroll-behavior: smooth;
+        }
+    </style>
+    <title>Tools - MRI Tumor Detection</title>
+</head>
+<style>
+    @keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.animate-slide-in-left {
+    animation: slideInLeft 0.3s ease-out forwards;
+}
+</style>
+
+<body class="bg-white">
+    <!-- Header -->
+    <header
+        class="container mx-auto px-6 sm:px-12 py-4 flex items-center justify-between border-b border-gray-200 relative">
+
+        <!-- Logo -->
+        <a href="/" class="flex items-center space-x-2">
+            <img src="/assets/logo.png" alt="YYOG" class="h-12 w-auto" />
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden sm:flex items-center space-x-8 text-black">
+            <a href="/" class="hover:text-special-red ">Home</a>
+            <a href="./about" class="hover:text-special-red">About</a>
+            <a href="./tools" class="text-special-red font-medium ">Tools</a>
+            <a href="./case-studies" class="hover:text-special-red">Case Studies</a>
+            <a href="./resources" class="hover:text-special-red">Resources</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+
+            <!-- Auth Section -->
+            <div class="flex items-center space-x-3">
+                {% if current_user.is_authenticated %}
+                <span class="flex items-center gap-3">
+                    <span class="first-letter:uppercase">
+                        {{ current_user.username }}
+                    </span>
+                    <a href="{{ url_for('profile') }}" class="w-10 h-10 flex items-center justify-center 
+                          rounded-full bg-gray-100 text-special-red hover:bg-gray-200">
+                        <i class="fas fa-user text-sm"></i>
+                    </a>
+                </span>
+                {% else %}
+                 <a href="{{ url_for('login') }}"
+                    class="text-white bg-special-red hover:bg-special-red/90 px-4 py-2 rounded-full  text-sm">
+                    Login/Register
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Toggle Button -->
+            <button id="menu-toggle"
+                class="sm:hidden flex items-center justify-center w-10 h-10 focus:outline-none z-50 cursor-pointer text-gray-600 transition-colors">
+                <i id="menu-icon" class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile -->
+    <div id="mobile-menu"
+        class="sm:hidden hidden fixed h-[100vh] top-0 left-0 w-4/5 z-40 bg-white px-6 py-4 border-r border-gray-200 text-lg flex flex-col gap-2 animate-slide-in-left shadow-2xl">
+
+        <a href="/">
+            <img src="/assets/logo.png" alt="YYOG" class="h-12 w-auto mb-4" />
+        </a>
+
+        <a href="/" class="py-3 font-medium flex items-center">
+            <i class="fas fa-home mr-3"></i>Home
+        </a>
+
+        <a href="./about" class="py-3 flex items-center">
+            <i class="fas fa-info-circle mr-3"></i>About
+        </a>
+
+        <a href="./tools" class="py-3 text-special-red flex items-center">
+            <i class="fas fa-tools mr-3"></i>Tools
+        </a>
+
+        <a href="./case-studies" class="py-3 flex items-center">
+            <i class="fas fa-book-open mr-3"></i>Case Studies
+        </a>
+
+        <a href="./resources" class="py-3 flex items-center">
+            <i class="fas fa-file-alt mr-3"></i>Resources
+        </a>
+
+        <hr class="my-4">
+
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('profile') }}" class="py-3 flex items-center">
+            <i class="fas fa-user mr-3"></i>Profile
+        </a>
+
+        <a href="{{ url_for('logout') }}" class="py-3 text-red-600 flex items-center">
+            <i class="fas fa-sign-out-alt mr-3"></i>Logout
+        </a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="py-3 flex items-center">
+            <i class="fas fa-sign-in-alt mr-3"></i>Login
+        </a>
+
+        <a href="{{ url_for('register') }}" class="py-3 bg-special-red text-white rounded-lg text-center">
+            Register
+        </a>
+        {% endif %}
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById("menu-toggle");
+        const mobileMenu = document.getElementById("mobile-menu");
+        const menuIcon = document.getElementById("menu-icon");
+
+        menuToggle.addEventListener("click", () => {
+            mobileMenu.classList.toggle("hidden");
+
+            if (mobileMenu.classList.contains("hidden")) {
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            } else {
+                menuIcon.classList.remove("fa-bars");
+                menuIcon.classList.add("fa-times");
+            }
+        });
+
+        // Close when clicking links
+        document.querySelectorAll("#mobile-menu a").forEach(link => {
+            link.addEventListener("click", () => {
+                mobileMenu.classList.add("hidden");
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            });
+        });
+
+        // Close when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!mobileMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+                mobileMenu.classList.add("hidden");
+                menuIcon.classList.remove("fa-times");
+                menuIcon.classList.add("fa-bars");
+            }
+        });
+    </script>
+
+
+    <!-- Floating Share Button Group -->
+    <div class="fixed bottom-8 right-8 z-30" id="share-container">
+        <div class="flex flex-col items-center space-y-3 relative">
+
+            <!-- Share Icons -->
+            <div id="share-icons"
+                class="flex flex-col items-center space-y-3 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none">
+
+                <!-- Twitter -->
+                <a href="https://x.com/synoize" target="_blank">
+                    <div
+                        class="bg-black text-white w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fab fa-x-twitter"></i>
+                    </div>
+                </a>
+
+                <!-- WhatsApp -->
+                <a href="https://wa.me/916205163577" target="_blank">
+                    <div
+                        class="bg-black w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fab fa-whatsapp text-green-400 text-xl"></i>
+                    </div>
+                </a>
+
+                <!-- LinkedIn -->
+                <a href="https://www.linkedin.com/in/synoize" target="_blank">
+                    <div
+                        class="bg-black w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fab fa-linkedin-in text-special-blue text-xl"></i>
+                    </div>
+                </a>
+
+                <!-- Email -->
+                <a href="mailto:shivamsingh.dev0@gmail.com">
+                    <div
+                        class="bg-black w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition">
+                        <i class="fas fa-envelope text-red-500 text-lg"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Main Share Button -->
+            <div id="share-button"
+                class="bg-special-red w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition cursor-pointer">
+                <i class="fas fa-share-alt text-xl"></i>
+            </div>
+        </div>
+    </div>
+    <script>
+        const shareButton = document.getElementById("share-button");
+        const shareIcons = document.getElementById("share-icons");
+        const shareContainer = document.getElementById("share-container");
+
+        let isOpen = false;
+
+        // Show on mouse enter
+        shareContainer.addEventListener("mouseenter", () => {
+            shareIcons.classList.remove("opacity-0", "translate-y-4", "pointer-events-none");
+            shareIcons.classList.add("opacity-100", "translate-y-0", "pointer-events-auto");
+            isOpen = true;
+        });
+
+        // Hide on mouse leave
+        shareContainer.addEventListener("mouseleave", () => {
+            shareIcons.classList.remove("opacity-100", "translate-y-0", "pointer-events-auto");
+            shareIcons.classList.add("opacity-0", "translate-y-4", "pointer-events-none");
+            isOpen = false;
+        });
+    </script>
+
+    <!-- main -->
+    <main>
+        <!-- Tools Section -->
+        <section class="container mx-auto mb-20 text-center text-black">
+            <h2 class="text-sm uppercase tracking-wide mb-4 mt-12 font-bold">MRI Tumor Detection System</h2>
+            <h1 class="text-2xl md:text-4xl max-w-2xl mx-auto font-light mb-18 px-4 leading-snug">
+                Upload an MRI Images to detect if there is a tumor and its type
+            </h1>
+
+            <!-- Guest Notice -->
+            <div id="guestNotice" class="max-w-xl md:mx-auto mx-8 mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    You are using this tool as a guest. 
+                    <a href="{{ url_for('login', next=request.path) }}" class="font-medium underline">Login</a> or 
+                    <a href="{{ url_for('register', next=request.path) }}" class="font-medium underline">Register</a> 
+                    to save your prediction history.
+                </p>
+            </div>
+
+            <div class="flex border border-gray-300 rounded p-6 max-w-xl md:mx-auto mx-8">
+                <form id="uploadForm" class="w-full flex flex-col gap-4">
+                    <div class="flex flex-col items-start">
+                        <label for="file" class="text-gray-600 font-medium">Select MRI Report Image</label>
+                        <input type="file" name="file" id="file" accept="image/*" required
+                            class="border p-2 rounded mt-2 w-full border-gray-400 font-light">
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="bg-special-red hover:bg-special-red/90 cursor-pointer text-white rounded p-2 transition-all">
+                        Upload & Detect
+                    </button>
+                </form>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading" class="hidden max-w-xl md:mx-auto mx-8 mt-4 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+                <p class="mt-2 text-gray-600">Analyzing MRI image...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="result" class="hidden max-w-xl md:mx-auto mx-8 mt-4 space-y-4">
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">Analysis Results</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Prediction:</span>
+                            <span id="predictionResult" class="font-bold text-lg"></span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Confidence:</span>
+                            <span id="confidenceResult" class="font-bold text-lg text-blue-600"></span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Tumor Detected:</span>
+                            <span id="tumorResult" class="font-bold"></span>
+                        </div>
+                    </div>
+
+                    <!-- Probability Bars -->
+                    <div class="mt-6 space-y-2">
+                        <h4 class="font-medium text-gray-700">All Probabilities:</h4>
+                        <div id="probabilityBars"></div>
+                    </div>
+                </div>
+
+                <!-- Uploaded Image Preview -->
+                <div class="text-center">
+                    <img id="previewImage" src="" alt="MRI Report Image"
+                        class="w-full h-auto md:w-80 md:h-80 mx-auto rounded border border-gray-300">
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error" class="hidden max-w-xl md:mx-auto mx-8 mt-4 p-4 bg-red-50 border border-red-200 rounded text-red-700">
+            </div>
+
+            <script>
+                document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData();
+                    const fileInput = document.getElementById('file');
+                    const file = fileInput.files[0];
+                    
+                    if (!file) {
+                        showError('Please select an image file');
+                        return;
+                    }
+                    
+                    // Show preview
+                    const previewUrl = URL.createObjectURL(file);
+                    document.getElementById('previewImage').src = previewUrl;
+                    
+                    formData.append('file', file);
+                    
+                    // Show loading, hide results and errors
+                    document.getElementById('loading').classList.remove('hidden');
+                    document.getElementById('result').classList.add('hidden');
+                    document.getElementById('error').classList.add('hidden');
+                    document.getElementById('submitBtn').disabled = true;
+                    document.getElementById('submitBtn').textContent = 'Analyzing...';
+                    
+                    try {
+                        const response = await fetch('/predict', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (response.ok) {
+                            displayResults(data);
+                        } else {
+                            showError(data.error || 'An error occurred during analysis');
+                        }
+                    } catch (error) {
+                        showError('Network error: ' + error.message);
+                    } finally {
+                        document.getElementById('loading').classList.add('hidden');
+                        document.getElementById('submitBtn').disabled = false;
+                        document.getElementById('submitBtn').textContent = 'Upload & Detect';
+                    }
+                });
+                
+                function displayResults(data) {
+                    document.getElementById('result').classList.remove('hidden');
+                    
+                    // Set main results
+                    document.getElementById('predictionResult').textContent = data.prediction;
+                    document.getElementById('confidenceResult').textContent = data.confidence + '%';
+                    
+                    const tumorResult = document.getElementById('tumorResult');
+                    tumorResult.textContent = data.has_tumor ? 'Yes' : 'No';
+                    tumorResult.className = 'font-bold ' + (data.has_tumor ? 'text-red-600' : 'text-green-600');
+                    
+                    // Set prediction color based on result
+                    const predResult = document.getElementById('predictionResult');
+                    if (data.prediction.toLowerCase() === 'notumor') {
+                        predResult.className = 'font-bold text-lg text-green-600';
+                    } else {
+                        predResult.className = 'font-bold text-lg text-red-600';
+                    }
+                    
+                    // Create probability bars
+                    const probContainer = document.getElementById('probabilityBars');
+                    probContainer.innerHTML = '';
+                    
+                    for (const [label, prob] of Object.entries(data.all_probabilities)) {
+                        const barContainer = document.createElement('div');
+                        barContainer.className = 'flex items-center gap-2';
+                        
+                        const labelSpan = document.createElement('span');
+                        labelSpan.className = 'w-24 text-sm text-gray-600 capitalize';
+                        labelSpan.textContent = label + ':';
+                        
+                        const barWrapper = document.createElement('div');
+                        barWrapper.className = 'flex-1 bg-gray-200 rounded-full h-4';
+                        
+                        const bar = document.createElement('div');
+                        bar.className = 'h-4 rounded-full transition-all duration-500 ' + 
+                            (label === 'notumor' ? 'bg-green-500' : 'bg-red-500');
+                        bar.style.width = prob + '%';
+                        
+                        const probSpan = document.createElement('span');
+                        probSpan.className = 'w-16 text-sm text-gray-700 text-right';
+                        probSpan.textContent = prob + '%';
+                        
+                        barWrapper.appendChild(bar);
+                        barContainer.appendChild(labelSpan);
+                        barContainer.appendChild(barWrapper);
+                        barContainer.appendChild(probSpan);
+                        probContainer.appendChild(barContainer);
+                    }
+                    
+                    // Show save status message
+                    if (!data.saved) {
+                        const saveNotice = document.createElement('div');
+                        saveNotice.className = 'mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-sm';
+                        saveNotice.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Result not saved. <a href="' + "{{ url_for('login', next=request.path) }}" + '" class="underline font-medium">Login</a> to save your predictions.';
+                        document.getElementById('result').insertBefore(saveNotice, document.getElementById('result').children[1]);
+                    } else {
+                        const saveNotice = document.createElement('div');
+                        saveNotice.className = 'mt-4 p-3 bg-green-50 border border-green-200 rounded text-green-800 text-sm';
+                        saveNotice.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Result saved to your <a href="' + "{{ url_for('profile') }}" + '" class="underline font-medium">profile</a>.';
+                        document.getElementById('result').insertBefore(saveNotice, document.getElementById('result').children[1]);
+                    }
+                }
+                
+                function showError(message) {
+                    const errorDiv = document.getElementById('error');
+                    errorDiv.textContent = message;
+                    errorDiv.classList.remove('hidden');
+                }
+            </script>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="container mx-auto border-t border-gray-200">
+        <div class="w-full p-8 md:p-12 flex flex-col md:flex-row justify-between items-start gap-10 text-gray-800">
+
+            <div class="space-y-12  max-w-xl ">
+                <div class="space-y-3">
+                    <a href="/" class="flex items-center space-x-2">
+                        <img src="/assets/logo.png" alt="YYOG" class="h-12 w-auto" />
+                    </a>
+                    <h2 class="text-2xl font-light leading-snug">
+                        Tumor the AI-powered System<br />designed to assist radiologists and medical professionals in
+                        achieving faster, more reliable diagnoses, reducing human error, and improving patient outcomes.
+                    </h2>
+                </div>
+                <div class="space-y-3">
+                    <div class="font-medium leading-snug">
+                        <h2> Address: </h2>
+                        <p class="font-light">Saharsa, Bihar, India</p>
+                    </div>
+                    <div class="font-medium leading-snug">
+                        <h2> Email: </h2>
+                        <p class="font-light">shivamsingh.dev0@gmail.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Navigation Links -->
+            <div class="flex flex-wrap gap-x-10 gap-y-2 text-xl font-light">
+                <div class="flex flex-col space-y-1">
+                    <a href="/" class="hover:underline">Home</a>
+                    <a href="about.html" class="hover:underline">About</a>
+                    <a href="tools.html" class="hover:underline">Tools</a>
+                    <a href="case-studies.html" class="hover:underline">Case Studies</a>
+                    <a href="resources.html" class="hover:underline">Resources</a>
+                </div>
+                <div class="flex flex-col space-y-1">
+                    <a href="blogs.html" class="hover:underline">Blogs</a>
+                    <a href="subscribe.html" class="hover:underline">Subscribe</a>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-2xl font-light leading-snug">
+                <h4>Follow Us</h4>
+                <div class="flex gap-6 text-gray-600 text-xl">
+                    <a href="https://www.github.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="github">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="https://x.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="X / Twitter">
+                        <i class="fab fa-x-twitter"></i>
+                    </a>
+                    <a href="https://instagram.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://youtube.com/synoize" target="_blank"
+                        class="transform transition-transform duration-300 ease-in-out hover:scale-110"
+                        aria-label="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-100 py-6 text-center text-sm text-gray-500 space-y-1">
+            <p>Copyright © <span id="year"></span> tumer – All Rights Reserved.</p>
+            <p>Developed by <a href="https://synoize.vercel.app" target="_blank"
+                    class="font-medium text-gray-700 hover:text-special-red">Synoize</a></p>
+            <script>
+                document.getElementById("year").textContent = new Date().getFullYear();
+            </script>
+        </div>
+    </footer>
+
+    <script src="/script.js"></script>
+</body>
+
+</html>
